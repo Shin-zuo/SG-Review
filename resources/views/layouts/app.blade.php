@@ -50,6 +50,41 @@
                 observer.observe(element);
             });
         });
+
+//hamburger menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuIcon = document.getElementById('menuIcon');
+            const closeIcon = document.getElementById('closeIcon');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+
+            if (mobileMenuBtn && mobileMenu) {
+                const toggleMenu = () => {
+                    mobileMenu.classList.toggle('hidden');
+                    menuIcon.classList.toggle('hidden');
+                    closeIcon.classList.toggle('hidden');
+                    
+                    // Optional: Give the nav a solid white background when open so it doesn't clash with scrolling content
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        navbar.classList.add('bg-white');
+                        navbar.classList.remove('bg-white/80', 'backdrop-blur-md');
+                    } else {
+                        navbar.classList.remove('bg-white');
+                        navbar.classList.add('bg-white/80', 'backdrop-blur-md');
+                    }
+                };
+
+                mobileMenuBtn.addEventListener('click', toggleMenu);
+
+                // Auto-close menu when a link is clicked
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            toggleMenu();
+                        }
+                    });
+                });
+            }
     </script>
 </body>
 </html>

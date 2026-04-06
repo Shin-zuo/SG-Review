@@ -24,7 +24,7 @@
                                 <svg class="w-6 h-6 text-blue-400 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                 <div>
                                     <p class="text-sm text-slate-400 font-medium">Email Us</p>
-                                    <a href="mailto:support@sg-review.com" class="text-lg hover:text-blue-400 transition-colors">support@sg-review.com</a>
+                                    <a href="mailto:support@sg-review.com" class="text-lg hover:text-blue-400 transition-colors">sgwebwork2025@gmail.com</a>
                                 </div>
                             </div>
 
@@ -32,7 +32,7 @@
                                 <svg class="w-6 h-6 text-blue-400 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 <div>
                                     <p class="text-sm text-slate-400 font-medium">Office Location</p>
-                                    <p class="text-lg">Quezon City, Metro Manila<br>Philippines</p>
+                                    <p class="text-lg">Makati City, Metro Manila<br>Philippines</p>
                                 </div>
                             </div>
                         </div>
@@ -49,7 +49,13 @@
                 </div>
 
                 <div class="reveal opacity-0 translate-y-8 transition-all duration-700 delay-200 ease-out md:col-span-3 p-10">
-                    <form action="#" method="POST" class="space-y-6">
+
+                    @if(session('success'))
+                      <div class="p-4 mb-6 text-sm text-emerald-700 bg-emerald-100 rounded-xl border border-emerald-200" role="alert">
+                           <span class="font-bold">Success!</span> {{ session('success') }}
+                      </div>
+                    @endif
+                    <form action="{{ route('contact.submit') }}" method="POST" class="space-y-6">
                         @csrf 
 
                         <div class="grid md:grid-cols-2 gap-6">
@@ -77,6 +83,8 @@
                             <textarea id="message" name="message" rows="5" required placeholder="How can we help you today?" 
                                 class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 resize-none"></textarea>
                         </div>
+
+                        
 
                         <button type="submit" class="w-full md:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2">
                             Send Message
