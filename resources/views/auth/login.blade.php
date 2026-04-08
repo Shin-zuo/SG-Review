@@ -32,14 +32,14 @@
                 </div>
             @endif
 
-            <form action="#" method="POST" class="space-y-5">
+            <form action="{{ route('login.authenticate') }}" method="POST" class="space-y-5">
                 @csrf
 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-[#c9d1d9] mb-2">Email address</label>
-                    <input type="email" name="email" id="email" required autofocus
+                    <label for="username" class="block text-sm font-medium text-[#c9d1d9] mb-2">Username</label>
+                    <input type="text" name="username" id="username" required autofocus
                         class="w-full bg-[#0d1117] border border-[#30363d] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors placeholder-[#484f58]" 
-                        placeholder="you@example.com">
+                        placeholder="username">
                 </div>
 
                 <div>
@@ -50,11 +50,6 @@
                     <input type="password" name="password" id="password" required 
                         class="w-full bg-[#0d1117] border border-[#30363d] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors placeholder-[#484f58]" 
                         placeholder="••••••••">
-                </div>
-
-                <div class="flex items-center pt-2">
-                    <input id="remember_me" type="checkbox" name="remember" class="w-4 h-4 rounded bg-[#0d1117] border-[#30363d] text-blue-600 focus:ring-blue-600 focus:ring-offset-[#161b22]">
-                    <label for="remember_me" class="ml-2 block text-sm text-[#8b949e]">Remember me for 30 days</label>
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-4 py-3.5 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 mt-4 active:scale-[0.98]">
