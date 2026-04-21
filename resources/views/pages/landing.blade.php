@@ -106,66 +106,46 @@
 
                 <div id="courseCarousel" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 pt-4 md:px-14 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     
-                    <div class="group snap-center shrink-0 w-[85vw] md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 flex flex-col transition-all duration-300">
-                        <div class="h-40 bg-slate-800 flex items-center justify-center relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-slate-900 to-slate-700 opacity-90"></div>
-                            <span class="relative text-2xl font-black text-white tracking-widest z-10">REBLEX</span>
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Real Estate Broker</h3>
-                            <p class="text-slate-500 mb-6 text-sm flex-grow">Comprehensive guide covering Fundamentals, Appraisal, and Real Estate Law.</p>
-                            <div class="mb-5"><span class="text-3xl font-extrabold text-slate-900">₱5,000</span></div>
-                            <a href="https://tinyurl.com/SGW-REALE-REBLEX-REVIEW" target="_blank" rel="noopener noreferrer" class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center">
-                                Enroll Now
-                            </a>
-                        </div>
-                    </div>
+                    @forelse($courses as $course)
+                        <div class="group snap-center shrink-0 w-[85vw] md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 flex flex-col transition-all duration-300 relative">
+                            
+                            @if($course->badge)
+                                <div class="absolute top-4 right-4 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-full z-20 shadow-sm uppercase tracking-wide">
+                                    {{ $course->badge }}
+                                </div>
+                            @endif
 
-                    <div class="group snap-center shrink-0 w-[85vw] md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-white rounded-3xl shadow-md border-2 border-blue-500 overflow-hidden hover:shadow-xl hover:-translate-y-2 flex flex-col relative transition-all duration-300">
-                        <div class="absolute top-4 right-4 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-full z-20 shadow-sm uppercase tracking-wide">Most Popular</div>
-                        <div class="h-40 bg-blue-600 flex items-center justify-center relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-blue-700 to-cyan-500 opacity-90"></div>
-                            <span class="relative text-2xl font-black text-white tracking-widest z-10">CELE</span>
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Civil Engineering</h3>
-                            <p class="text-slate-500 mb-6 text-sm flex-grow">Master Mathematics, Surveying, Hydraulics, and Structural Design.</p>
-                            <div class="mb-5"><span class="text-3xl font-extrabold text-slate-900">₱5,000</span></div>
-                            <a href="https://tinyurl.com/SGW-CELE-REVIEW" target="_blank" rel="noopener noreferrer" class="w-full bg-blue-600 text-white hover:bg-blue-700 py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center shadow-sm">
-                                Enroll Now
-                            </a>
-                        </div>
-                    </div>
+                            <div class="h-40 flex items-center justify-center relative overflow-hidden {{ $course->image_path ? '' : 'bg-' . $course->bg_color }}">
+                                @if($course->image_path)
+                                    <img src="{{ asset('storage/' . $course->image_path) }}" class="absolute inset-0 w-full h-full object-cover z-0" alt="{{ $course->acronym }} Cover">
+                                    <div class="absolute inset-0 bg-slate-900/60 z-0"></div>
+                                @else
+                                    <div class="absolute inset-0 bg-gradient-to-tr from-black/40 to-transparent z-0"></div>
+                                @endif
+                                
+                                <span class="relative text-2xl font-black text-white tracking-widest z-10">{{ $course->acronym }}</span>
+                            </div>
 
-                    <div class="group snap-center shrink-0 w-[85vw] md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 flex flex-col transition-all duration-300">
-                        <div class="h-40 bg-emerald-600 flex items-center justify-center relative overflow-hidden">
-                             <div class="absolute inset-0 bg-gradient-to-tr from-emerald-700 to-teal-500 opacity-90"></div>
-                            <span class="relative text-2xl font-black text-white tracking-widest z-10">CSE</span>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-xl font-bold text-slate-900 mb-2">{{ $course->title }}</h3>
+                                <p class="text-slate-500 mb-6 text-sm flex-grow line-clamp-2">{{ $course->description }}</p>
+                                
+                                <div class="mb-5"><span class="text-3xl font-extrabold text-slate-900">₱{{ number_format($course->price, 0) }}</span></div>
+                                
+                                <a href="{{ $course->enrollment_link }}" target="_blank" rel="noopener noreferrer" class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center">
+                                    Enroll Now
+                                </a>
+                            </div>
                         </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Civil Service</h3>
-                            <p class="text-slate-500 mb-6 text-sm flex-grow">Professional and Sub-Professional level logic, math, and general info.</p>
-                            <div class="mb-5"><span class="text-3xl font-extrabold text-slate-900">₱1,000</span></div>
-                            <a href="https://tinyurl.com/SGW-CSE-CET-AI-REVIEW" target="_blank" rel="noopener noreferrer" class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center">
-                                Enroll Now
-                            </a>
+                    @empty
+                        <div class="w-full py-16 text-center">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">More Courses Coming Soon</h3>
+                            <p class="text-slate-500">We are currently preparing new reviewer materials. Check back later!</p>
                         </div>
-                    </div>
-
-                    <div class="group snap-center shrink-0 w-[85vw] md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 flex flex-col transition-all duration-300">
-                        <div class="h-40 bg-purple-600 flex items-center justify-center relative overflow-hidden">
-                             <div class="absolute inset-0 bg-gradient-to-tr from-purple-700 to-pink-500 opacity-90"></div>
-                            <span class="relative text-2xl font-black text-white tracking-widest z-10">LET</span>
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Prof. Teachers</h3>
-                            <p class="text-slate-500 mb-6 text-sm flex-grow">Comprehensive coverage of Gen Ed, Prof Ed, and your specific Major.</p>
-                            <div class="mb-5"><span class="text-3xl font-extrabold text-slate-900">₱2,500</span></div>
-                            <a href="#" class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center">
-                                Coming Soon
-                            </a>
-                        </div>
-                    </div>
+                    @endforelse
 
                 </div>
 

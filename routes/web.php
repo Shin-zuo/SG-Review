@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use GuzzleHttp\Middleware;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\ReviewerController;
+use App\Models\Course;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,8 +22,13 @@ use App\Http\Controllers\ReviewerController;
 */
 
 Route::get('/', function () {
-    return view('pages.landing');
+    // Fetch all courses, newest first
+    $courses = Course::latest()->get(); 
+    
+    // Pass them to the landing page
+    return view('pages.landing', compact('courses')); 
 })->name('home');
+
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
@@ -36,4 +42,13 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
 
     Route::get('/reviewers', [ReviewerController::class, 'index'])->name('reviewers');
 
+    Route::get('/admin/reviewers/create', [ReviewerController::class, 'create'])->name('reviewers.create');
+    Route::post('/admin/reviewers', [ReviewerController::class, 'store'])->name('reviewers.store');
+    Route::delete('/admin/reviewers/{id}', [ReviewerController::class, 'destroy'])->name('reviewers.destroy');
+    Route::get('/admin/reviewers/{id}/edit', [ReviewerController::class, 'edit'])->name('reviewers.edit');
+    Route::put('/admin/reviewers/{id}', [ReviewerController::class, 'update'])->name('reviewers.update');
+
 });
+
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
