@@ -19,4 +19,9 @@ class Course extends Model
         'image_path',
         'badge',
     ];
+
+    public function modules()
+    {
+        return $this->hasMany(\App\Models\Modules::class);
+    }
 }

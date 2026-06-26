@@ -5,7 +5,6 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto">
-    
     <div class="mb-6 flex items-center gap-4">
         <a href="{{ route('reviewers') }}" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-colors shadow-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -26,9 +25,15 @@
         </div>
     @endif
 
+    @php
+        $existingModules = $course->modules()->with('lessons')->orderBy('module_number')->get();
+    @endphp
+
     <form action="{{ route('reviewers.update', $course->id) }}" method="POST" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         @csrf
-        @method('PUT') <div class="p-6 md:p-8 space-y-6">
+        @method('PUT')
+
+        <div class="p-6 md:p-8 space-y-6">
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label for="title" class="block text-sm font-bold text-slate-700">Course Title <span class="text-red-500">*</span></label>
@@ -83,7 +88,7 @@
 
                 <div class="space-y-2">
                     <label for="image" class="block text-sm font-bold text-slate-700">Cover Image</label>
-                    
+
                     @if($course->image_path)
                         <div class="mb-3 p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between shadow-sm">
                             <div class="flex items-center gap-3">
@@ -101,6 +106,120 @@
                     <p class="text-xs text-slate-500 mt-1">Upload a new image to replace the current one, or select 'Remove' to use your Theme Color.</p>
                 </div>
             </div>
+
+            <div class="border-t border-slate-100 pt-6">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Modules & Lessons</h3>
+                        <p class="text-sm text-slate-500">Update the modules and lessons for this reviewer course.</p>
+                    </div>
+                </div>
+
+                <div id="modules-container" class="space-y-4">
+                    @foreach($existingModules as $modulePosition => $module)
+                        <div class="module-item rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="grid flex-1 gap-4 md:grid-cols-[140px_1fr]">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-bold text-slate-700">Module No.</label>
+                                        <input type="number" name="modules[{{ $modulePosition }}][module_number]" value="{{ old('modules.' . $modulePosition . '.module_number', $module->module_number ?: $modulePosition + 1) }}" data-auto="0" class="module-number-input w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="1" required>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-bold text-slate-700">Module Title</label>
+                                        <input type="text" name="modules[{{ $modulePosition }}][module_title]" value="{{ old('modules.' . $modulePosition . '.module_title', $module->module_title) }}" class="module-title-input w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Mathematics" required>
+                                    </div>
+                                </div>
+                                <button type="button" class="remove-module-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:text-red-600">
+                                    Remove
+                                </button>
+                            </div>
+
+                            <div class="mt-4 border-t border-slate-200 pt-4">
+                                <div class="mb-3 flex items-center justify-between gap-3">
+                                    <h4 class="text-sm font-bold text-slate-700">Lessons</h4>
+                                    <button type="button" class="add-lesson-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-700" data-module-index="{{ $modulePosition }}">
+                                        Add Lesson
+                                    </button>
+                                </div>
+                                <div class="lessons-list space-y-3" data-module-index="{{ $modulePosition }}">
+                                    @foreach($module->lessons as $lessonPosition => $lesson)
+                                        <div class="lesson-item grid gap-4 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-[140px_1fr]">
+                                            <div class="space-y-2">
+                                                <label class="block text-sm font-bold text-slate-700">Lesson No.</label>
+                                                <input type="number" name="modules[{{ $modulePosition }}][lessons][{{ $lessonPosition }}][lesson_number]" value="{{ old('modules.' . $modulePosition . '.lessons.' . $lessonPosition . '.lesson_number', $lesson->lesson_number ?: $lessonPosition + 1) }}" data-auto="0" class="lesson-number-input w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="1" required>
+                                            </div>
+                                            <div class="space-y-2">
+                                                <label class="block text-sm font-bold text-slate-700">Lesson Title</label>
+                                                <div class="flex gap-2">
+                                                    <input type="text" name="modules[{{ $modulePosition }}][lessons][{{ $lessonPosition }}][lesson_title]" value="{{ old('modules.' . $modulePosition . '.lessons.' . $lessonPosition . '.lesson_title', $lesson->lesson_title) }}" class="lesson-title-input flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Algebra" required>
+                                                    <button type="button" class="remove-lesson-btn rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:text-red-600">
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                    <button type="button" id="add-module-btn" class="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 sticky bottom-4">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Module
+                    </button>
+                </div>
+
+                <template id="module-template">
+                    <div class="module-item rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="grid flex-1 gap-4 md:grid-cols-[140px_1fr]">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-bold text-slate-700">Module No.</label>
+                                    <input type="number" name="modules[__MODULE_INDEX__][module_number]" value="__MODULE_NUMBER__" data-auto="1" class="module-number-input w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="1" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-bold text-slate-700">Module Title</label>
+                                    <input type="text" name="modules[__MODULE_INDEX__][module_title]" class="module-title-input w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Mathematics" required>
+                                </div>
+                            </div>
+                            <button type="button" class="remove-module-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:text-red-600">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div class="mt-4 border-t border-slate-200 pt-4">
+                            <div class="mb-3 flex items-center justify-between gap-3">
+                                <h4 class="text-sm font-bold text-slate-700">Lessons</h4>
+                                <button type="button" class="add-lesson-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-700" data-module-index="__MODULE_INDEX__">
+                                    Add Lesson
+                                </button>
+                            </div>
+                            <div class="lessons-list space-y-3" data-module-index="__MODULE_INDEX__"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <template id="lesson-template">
+                    <div class="lesson-item grid gap-4 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-[140px_1fr]">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-slate-700">Lesson No.</label>
+                            <input type="number" name="modules[__MODULE_INDEX__][lessons][__LESSON_INDEX__][lesson_number]" value="__LESSON_NUMBER__" data-auto="1" class="lesson-number-input w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="1" required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-slate-700">Lesson Title</label>
+                            <div class="flex gap-2">
+                                <input type="text" name="modules[__MODULE_INDEX__][lessons][__LESSON_INDEX__][lesson_title]" class="lesson-title-input flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Algebra" required>
+                                <button type="button" class="remove-lesson-btn rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:text-red-600">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
 
         <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
@@ -111,4 +230,78 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modulesContainer = document.getElementById('modules-container');
+        const moduleTemplate = document.getElementById('module-template').innerHTML;
+        const lessonTemplate = document.getElementById('lesson-template').innerHTML;
+        let moduleIndex = {{ $existingModules->count() }};
+
+        function syncNumbers() {
+            const moduleItems = modulesContainer.querySelectorAll('.module-item');
+            moduleItems.forEach(function (moduleItem, modulePosition) {
+                const moduleNumberInput = moduleItem.querySelector('.module-number-input');
+                if (moduleNumberInput && (!moduleNumberInput.value || moduleNumberInput.dataset.auto === '1')) {
+                    moduleNumberInput.value = modulePosition + 1;
+                }
+
+                const lessonItems = moduleItem.querySelectorAll('.lesson-item');
+                lessonItems.forEach(function (lessonItem, lessonPosition) {
+                    const lessonNumberInput = lessonItem.querySelector('.lesson-number-input');
+                    if (lessonNumberInput && (!lessonNumberInput.value || lessonNumberInput.dataset.auto === '1')) {
+                        lessonNumberInput.value = lessonPosition + 1;
+                    }
+                });
+            });
+        }
+
+        document.getElementById('add-module-btn').addEventListener('click', function () {
+            const markup = moduleTemplate
+                .replace(/__MODULE_INDEX__/g, moduleIndex)
+                .replace(/__MODULE_NUMBER__/g, moduleIndex + 1);
+            modulesContainer.insertAdjacentHTML('beforeend', markup);
+            moduleIndex += 1;
+            syncNumbers();
+        });
+
+        modulesContainer.addEventListener('input', function (event) {
+            if (event.target.matches('.module-number-input, .lesson-number-input')) {
+                event.target.dataset.auto = '0';
+            }
+        });
+
+        modulesContainer.addEventListener('click', function (event) {
+            const removeModuleButton = event.target.closest('.remove-module-btn');
+            if (removeModuleButton) {
+                removeModuleButton.closest('.module-item').remove();
+                syncNumbers();
+                return;
+            }
+
+            const removeLessonButton = event.target.closest('.remove-lesson-btn');
+            if (removeLessonButton) {
+                removeLessonButton.closest('.lesson-item').remove();
+                syncNumbers();
+                return;
+            }
+
+            const addLessonButton = event.target.closest('.add-lesson-btn');
+            if (addLessonButton) {
+                const moduleItem = addLessonButton.closest('.module-item');
+                const lessonsList = moduleItem.querySelector('.lessons-list');
+                const moduleKey = addLessonButton.dataset.moduleIndex;
+                const lessonCount = moduleItem.querySelectorAll('.lesson-item').length;
+                const lessonMarkup = lessonTemplate
+                    .replace(/__MODULE_INDEX__/g, moduleKey)
+                    .replace(/__LESSON_INDEX__/g, lessonCount)
+                    .replace(/__LESSON_NUMBER__/g, lessonCount + 1);
+                lessonsList.insertAdjacentHTML('beforeend', lessonMarkup);
+                syncNumbers();
+            }
+        });
+
+        syncNumbers();
+    });
+</script>
 @endsection

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Lessons;
+use App\Models\Modules;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ReviewerController extends Controller
@@ -39,25 +42,51 @@ class ReviewerController extends Controller
             'enrollment_link' => 'required|url',
             'bg_color' => 'nullable|string|max:50',
             'badge' => 'nullable|string|max:50',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Max 2MB image
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'modules' => 'nullable|array',
+            'modules.*.module_number' => 'nullable|integer',
+            'modules.*.module_title' => 'nullable|string|max:255',
+            'modules.*.lessons' => 'nullable|array',
+            'modules.*.lessons.*.lesson_number' => 'nullable|integer',
+            'modules.*.lessons.*.lesson_title' => 'nullable|string|max:255',
         ]);
 
-        // Handle Image Upload Logic
         if ($request->hasFile('image')) {
-            // This saves the image to storage/app/public/courses
             $imagePath = $request->file('image')->store('courses', 'public');
             $validated['image_path'] = $imagePath;
         }
 
-        // Set fallback background color if empty
         if (empty($validated['bg_color'])) {
             $validated['bg_color'] = 'blue-600';
         }
 
-        // Create the record in the database!
-        Course::create($validated);
+        DB::transaction(function () use ($validated, $request) {
+            $course = Course::create($validated);
+            $modules = $request->input('modules', []);
 
-        // Redirect back to the table with a SweetAlert success message
+            foreach ($modules as $moduleData) {
+                if (empty($moduleData['module_title']) && empty($moduleData['module_number'])) {
+                    continue;
+                }
+
+                $module = $course->modules()->create([
+                    'module_number' => $moduleData['module_number'] ?? null,
+                    'module_title' => $moduleData['module_title'] ?? null,
+                ]);
+
+                foreach ($moduleData['lessons'] ?? [] as $lessonData) {
+                    if (empty($lessonData['lesson_title']) && empty($lessonData['lesson_number'])) {
+                        continue;
+                    }
+
+                    $module->lessons()->create([
+                        'lesson_number' => $lessonData['lesson_number'] ?? null,
+                        'lesson_title' => $lessonData['lesson_title'] ?? null,
+                    ]);
+                }
+            }
+        });
+
         return redirect()->route('reviewers')->with('success', 'Reviewer course added successfully!');
 
     }
@@ -96,19 +125,22 @@ class ReviewerController extends Controller
             'enrollment_link' => 'required|url',
             'bg_color' => 'nullable|string|max:50',
             'badge' => 'nullable|string|max:50',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', 
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'modules' => 'nullable|array',
+            'modules.*.module_number' => 'nullable|integer',
+            'modules.*.module_title' => 'nullable|string|max:255',
+            'modules.*.lessons' => 'nullable|array',
+            'modules.*.lessons.*.lesson_number' => 'nullable|integer',
+            'modules.*.lessons.*.lesson_title' => 'nullable|string|max:255',
         ]);
 
-        // 1. Explicit Image Removal Logic
-        // If the admin checked the "Remove" box...
         if ($request->has('remove_image')) {
             if ($course->image_path) {
-                Storage::disk('public')->delete($course->image_path); // Delete from server
+                Storage::disk('public')->delete($course->image_path);
             }
-            $validated['image_path'] = null; // Clear the database record so it reverts to color
+            $validated['image_path'] = null;
         }
 
-        // 2. New Image Upload Logic (This overrides the removal checkbox if they do both)
         if ($request->hasFile('image')) {
             if ($course->image_path) {
                 Storage::disk('public')->delete($course->image_path);
@@ -117,13 +149,37 @@ class ReviewerController extends Controller
             $validated['image_path'] = $imagePath;
         }
 
-        // 3. Ensure a fallback color exists
         if (empty($validated['bg_color'])) {
             $validated['bg_color'] = 'blue-600';
         }
 
-        // Update the database record
-        $course->update($validated);
+        DB::transaction(function () use ($course, $validated, $request) {
+            $course->update($validated);
+
+            $course->modules()->delete();
+
+            foreach ($request->input('modules', []) as $moduleData) {
+                if (empty($moduleData['module_title']) && empty($moduleData['module_number'])) {
+                    continue;
+                }
+
+                $module = $course->modules()->create([
+                    'module_number' => $moduleData['module_number'] ?? null,
+                    'module_title' => $moduleData['module_title'] ?? null,
+                ]);
+
+                foreach ($moduleData['lessons'] ?? [] as $lessonData) {
+                    if (empty($lessonData['lesson_title']) && empty($lessonData['lesson_number'])) {
+                        continue;
+                    }
+
+                    $module->lessons()->create([
+                        'lesson_number' => $lessonData['lesson_number'] ?? null,
+                        'lesson_title' => $lessonData['lesson_title'] ?? null,
+                    ]);
+                }
+            }
+        });
 
         return redirect()->route('reviewers')->with('success', 'Course updated successfully!');
     }

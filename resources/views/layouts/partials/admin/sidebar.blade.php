@@ -26,11 +26,14 @@
             Reviewers
         </a>
 
-        <a href="#" 
+
+        <a href="{{ route('agents') }}" 
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all
-           {{ request()->routeIs('orders*') ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            Orders
+           {{ request()->routeIs('agents*') ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Agents
         </a>
     </nav>
 
