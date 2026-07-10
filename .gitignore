@@ -17,3 +17,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+todo.md
+Dockerfile
+docker-compose.yml
+skills/
+plan.md
+db/password.txt

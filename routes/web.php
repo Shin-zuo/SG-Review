@@ -9,6 +9,10 @@ use GuzzleHttp\Middleware;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\ReviewerController;
 use App\Models\Course;
+Use App\Models\Reviewer;
+use App\Http\Middleware\Authenticate;
+use App\Http\Controllers\AgentController;
+use App\Http\Controllers\StudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,23 +36,41 @@ Route::get('/', function () {
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/courses', [ReviewerController::class, 'reviewerCourses'])->name('courses');
+
+// Enrollment Mockup Flow Routes
+Route::prefix('enroll')->group(function () {
+    Route::get('/status/success', [StudentController::class, 'success'])->name('enroll.success');
+    Route::get('/{course}', [StudentController::class, 'showSelection'])->name('enroll.selection');
+    Route::post('/{course}/free-trial', [StudentController::class, 'storeFreeTrial'])->name('enroll.free');
+    Route::post('/{course}/premium', [StudentController::class, 'storePremium'])->name('enroll.premium');
+});
+
 Route::get('/login',[LoginController::class, 'index'])->name('login');
 
 Route::post('/login/authenticate',[LoginController::class, 'authenticate'])->name('login.authenticate');
 
-Route::middleware(['auth', IsAdmin::class])->group(function () {
+Route::middleware([Authenticate::class, IsAdmin::class])->group(function () {
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Reviewer Routes
     Route::get('/reviewers', [ReviewerController::class, 'index'])->name('reviewers');
-
     Route::get('/admin/reviewers/create', [ReviewerController::class, 'create'])->name('reviewers.create');
     Route::post('/admin/reviewers', [ReviewerController::class, 'store'])->name('reviewers.store');
     Route::delete('/admin/reviewers/{id}', [ReviewerController::class, 'destroy'])->name('reviewers.destroy');
     Route::get('/admin/reviewers/{id}/edit', [ReviewerController::class, 'edit'])->name('reviewers.edit');
     Route::put('/admin/reviewers/{id}', [ReviewerController::class, 'update'])->name('reviewers.update');
 
+    // Agent Routes
+    Route::get('/agents', [AgentController::class, 'index'])->name('agents');
+
+
+    // Student Routes
+    Route::get('/students', [StudentController::class, 'index'])->name('students');
 });
 
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::post('/agents', [LandingController::class, 'storeAgent'])->name('agents.store');

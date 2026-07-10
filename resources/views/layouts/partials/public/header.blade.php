@@ -10,6 +10,7 @@
             <a href="{{ route('home') }}#reviewers" class="hover:text-blue-600 transition-colors">Our Reviewers</a>
             <a href="{{ route('home') }}#features" class="hover:text-blue-600 transition-colors">Why Us</a>
             <a href="{{ route('contact') }}" class="hover:text-blue-600 transition-colors">Contact Us</a>
+            <a href="{{ route('courses') }}" class="hover:text-blue-600 transition-colors">Courses</a>
         </div>
 
         <a href="{{ route('home') }}#reviewers" class="hidden md:inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-semibold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">

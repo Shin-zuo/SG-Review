@@ -31,4 +31,29 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Xendit Payment Gateway Configuration
+    |--------------------------------------------------------------------------
+    */
+    'xendit' => [
+        'secret_key' => env('XENDIT_SECRET_KEY'),
+        'public_key' => env('XENDIT_PUBLIC_KEY'),
+        'callback_token' => env('XENDIT_CALLBACK_TOKEN'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Google Classroom & Admin SDK Configuration
+    |--------------------------------------------------------------------------
+    */
+    'google_classroom' => [
+        'client_id' => env('GOOGLE_CLASSROOM_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLASSROOM_CLIENT_SECRET'),
+        'redirect_uri' => env('GOOGLE_CLASSROOM_REDIRECT_URI', env('APP_URL') . '/auth/google/callback'),
+        'refresh_token' => env('GOOGLE_CLASSROOM_REFRESH_TOKEN'),
+        'service_account_path' => env('GOOGLE_APPLICATION_CREDENTIALS'),
+        'admin_email' => env('GOOGLE_WORKSPACE_ADMIN_EMAIL'),
+    ],
+
 ];
