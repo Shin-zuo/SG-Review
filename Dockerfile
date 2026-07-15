@@ -60,10 +60,11 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 80
 
-# Start Apache with dynamic $PORT support, fix mounted volume permissions, and clear stale package cache before boot
+# Start Apache with dynamic $PORT support, run database migrations/seeders, and clear stale package cache before boot
 CMD chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true \
     && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true \
     && rm -f /var/www/html/bootstrap/cache/packages.php /var/www/html/bootstrap/cache/services.php \
     && sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf \
     && sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT:-80}>/g" /etc/apache2/sites-available/000-default.conf \
+    && php artisan migrate --force --seed 2>/dev/null || true \
     && apache2-foreground
