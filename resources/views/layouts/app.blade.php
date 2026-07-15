@@ -49,10 +49,9 @@
             document.querySelectorAll('.reveal').forEach((element) => {
                 observer.observe(element);
             });
-        });
 
-//hamburger menu
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            // hamburger menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const mobileMenu = document.getElementById('mobileMenu');
             const menuIcon = document.getElementById('menuIcon');
             const closeIcon = document.getElementById('closeIcon');
@@ -85,6 +84,7 @@
                     });
                 });
             }
+        });
     </script>
 </body>
 </html>
