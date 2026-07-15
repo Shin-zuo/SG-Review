@@ -18,9 +18,9 @@
                 Back to Available Programs
             </a>
             
-            <div class="inline-flex items-center gap-2 bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full">
-                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                Mockup Preview Flow (Google Classroom & Xendit Disabled)
+            <div class="inline-flex items-center gap-2 bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Integrated with Xendit GCash & Google Classroom OAuth 2.0
             </div>
         </div>
 
@@ -61,6 +61,87 @@
                 </button>
             </div>
         </div>
+
+        {{-- Flash Messages & Validation Alerts --}}
+        @if(session('success'))
+            <div class="mb-8 p-6 bg-emerald-50 border-2 border-emerald-400 rounded-3xl shadow-lg flex items-start gap-4">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-emerald-900 text-lg">Notification</h4>
+                    <p class="text-emerald-800 text-sm mt-1 leading-relaxed">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="mb-8 p-6 md:p-8 bg-amber-50 border-2 border-amber-400 rounded-3xl shadow-xl">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md mt-0.5">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-black text-amber-950 text-xl tracking-tight">Notice: Enrollment Validation Alert</h4>
+                        <ul class="mt-2 space-y-1.5 text-amber-900 font-medium text-sm">
+                            @foreach($errors->all() as $error)
+                                <li class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                                    {{ $error }}
+                                </li>
+                            @endforeach
+                        </ul>
+
+                        @if($errors->has('student_email'))
+                            @if(session('trial_is_expired'))
+                                <div class="mt-4 pt-4 border-t border-amber-200/80 text-sm text-amber-950 space-y-2">
+                                    <p class="font-semibold text-red-700">
+                                        &bull; <span class="underline font-bold">Free Trial Expired:</span> Your 7-day Free Trial access period for this course has finished.
+                                    </p>
+                                    <p class="font-semibold">
+                                        &bull; <span class="underline decoration-amber-600 font-bold">Want Full Access?</span> To unlock continuous, uninterrupted review materials for the entire season right now, switch to <span class="font-bold text-blue-700 cursor-pointer underline" onclick="switchPlan('premium')">Premium Reviewer Access ⭐</span> above!
+                                    </p>
+                                </div>
+
+                                @if(session('existing_trial_id'))
+                                    <div class="mt-6 p-5 bg-white/90 backdrop-blur-sm rounded-2xl border-2 border-red-300 shadow-md">
+                                        <h5 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                                            <span class="text-lg">⏳</span> Need more time before deciding? Request a 3-Day Extension!
+                                        </h5>
+                                        <p class="text-xs text-slate-600 mt-1">
+                                            Since your 7-day free trial has expired, you may request an admin-reviewed 3-day extension below if you need extra time to complete your practice mock exams.
+                                        </p>
+
+                                        <form action="{{ route('enroll.extension', $course->id) }}" method="POST" class="mt-4 space-y-3">
+                                            @csrf
+                                            <input type="hidden" name="student_id" value="{{ session('existing_trial_id') }}">
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Reason for Extension Request <span class="text-red-500">*</span></label>
+                                                <input type="text" name="extension_reason" required placeholder="e.g., Was busy with midterms and need 3 extra days to finish review mock exams..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                            </div>
+                                            <div class="flex items-center justify-end">
+                                                <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-md hover:shadow-lg">
+                                                    Request 3-Day Trial Extension &rarr;
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="mt-4 pt-4 border-t border-amber-200/80 text-sm text-amber-950 space-y-2">
+                                    <p class="font-semibold">
+                                        &bull; <span class="underline decoration-amber-600 font-bold">Already Enrolled & Active!</span> You are currently enrolled in our 7-day Free Trial. Please check your email inbox (and spam/junk folder) for your Google Classroom invitation link.
+                                    </p>
+                                    <p class="font-semibold">
+                                        &bull; <span class="underline decoration-amber-600 font-bold">Want Full Season Access?</span> You can upgrade at any time before your trial ends by selecting <span class="font-bold text-blue-700 cursor-pointer underline" onclick="switchPlan('premium')">Premium Reviewer Access ⭐</span> above!
+                                    </p>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Plan Cards & Forms Container --}}
         <div class="grid lg:grid-cols-12 gap-8 items-start">
@@ -139,9 +220,11 @@
                 <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-xs text-amber-800">
                     <div class="font-bold mb-1 flex items-center gap-1.5 text-amber-900">
                         <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        System Backup Option
+                        System Maintenance & Fallback Policy
                     </div>
-                    If you experience payment gateway disruptions or network issues, you can also enroll directly via our <a href="{{ $course->enrollment_link }}" target="_blank" rel="noopener noreferrer" class="font-bold underline text-amber-900 hover:text-amber-700">Official Google Form Backup Link</a>.
+                    <p class="leading-relaxed">
+                        Our automated enrollment and Xendit payment API handle instant transactions. The <a href="{{ $course->enrollment_link }}" target="_blank" rel="noopener noreferrer" class="font-bold underline text-amber-900 hover:text-amber-700">Official Google Form Backup Link</a> is reserved exclusively for use when the automated enrollment form or Xendit API is undergoing system maintenance or temporarily unable to process online transactions.
+                    </p>
                 </div>
 
             </div>
@@ -240,56 +323,41 @@
                         <p class="text-[11px] text-slate-400">If you were referred by an ambassador or agent, enter their code here.</p>
                     </div>
 
-                    {{-- Mock Payment Channel Selection --}}
+                    {{-- Payment Channel Selection (GCash Only) --}}
                     <div class="border-t border-slate-100 pt-6">
-                        <label class="block text-sm font-bold text-slate-700 mb-3">Select Mock Payment Method (Simulated Checkout)</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_channel" value="GCASH" checked class="peer sr-only">
-                                <div class="p-3 rounded-xl border-2 border-slate-200 peer-checked:border-blue-600 peer-checked:bg-blue-50/50 text-center transition-all">
-                                    <span class="block font-black text-sm text-blue-600">GCash</span>
-                                    <span class="block text-[10px] text-slate-400">E-Wallet</span>
+                        <label class="block text-sm font-bold text-slate-700 mb-3">Payment Method</label>
+                        <input type="hidden" name="payment_channel" value="GCASH">
+                        <div class="p-4 rounded-2xl border-2 border-blue-600 bg-blue-50/60 flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center text-sm shadow-md shadow-blue-600/30">
+                                    GC
                                 </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_channel" value="MAYA" class="peer sr-only">
-                                <div class="p-3 rounded-xl border-2 border-slate-200 peer-checked:border-blue-600 peer-checked:bg-blue-50/50 text-center transition-all">
-                                    <span class="block font-black text-sm text-emerald-600">Maya</span>
-                                    <span class="block text-[10px] text-slate-400">E-Wallet</span>
+                                <div>
+                                    <span class="block font-black text-base text-blue-950">GCash via Xendit API</span>
+                                    <span class="block text-xs font-medium text-slate-500">Fast, secure e-wallet transaction with instant payment verification</span>
                                 </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_channel" value="CREDIT_CARD" class="peer sr-only">
-                                <div class="p-3 rounded-xl border-2 border-slate-200 peer-checked:border-blue-600 peer-checked:bg-blue-50/50 text-center transition-all">
-                                    <span class="block font-black text-sm text-slate-800">Card / QR Ph</span>
-                                    <span class="block text-[10px] text-slate-400">InstaPay</span>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_channel" value="BANK_TRANSFER" class="peer sr-only">
-                                <div class="p-3 rounded-xl border-2 border-slate-200 peer-checked:border-blue-600 peer-checked:bg-blue-50/50 text-center transition-all">
-                                    <span class="block font-black text-sm text-indigo-600">Bank Transfer</span>
-                                    <span class="block text-[10px] text-slate-400">BDO/BPI/Union</span>
-                                </div>
-                            </label>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-[11px] font-black bg-blue-600 text-white uppercase tracking-wider">
+                                GCash Only
+                            </span>
                         </div>
                     </div>
 
                     <div class="bg-blue-50/60 rounded-2xl p-5 border border-blue-200">
                         <div class="flex items-center justify-between text-sm font-bold text-slate-800 mb-2">
-                            <span>Amount to Pay (Mockup):</span>
+                            <span>Amount to Pay (via Xendit GCash):</span>
                             <span class="text-xl text-blue-600">₱{{ number_format($course->price, 0) }}</span>
                         </div>
                         <div class="flex items-start gap-3 mt-3 border-t border-blue-100 pt-3">
                             <input type="checkbox" id="termsPremium" required class="mt-1 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <label for="termsPremium" class="text-xs text-slate-600 leading-normal">
-                                I confirm that all information provided is accurate and agree to proceed with mock checkout verification.
+                                I confirm that all information provided is accurate and agree to proceed with secure Xendit GCash checkout verification.
                             </label>
                         </div>
                     </div>
 
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-4 rounded-2xl shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-0.5 text-base flex items-center justify-center gap-2 cursor-pointer">
-                        <span>Proceed to Mock Checkout (₱{{ number_format($course->price, 0) }})</span>
+                        <span>Proceed to Xendit GCash Checkout (₱{{ number_format($course->price, 0) }})</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
                 </form>

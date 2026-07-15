@@ -13,6 +13,7 @@ Use App\Models\Reviewer;
 use App\Http\Middleware\Authenticate;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\GoogleOAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,13 +39,21 @@ Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/courses', [ReviewerController::class, 'reviewerCourses'])->name('courses');
 
+// Ambassador / Agent Registration Flow
+Route::get('/agents/register', [AgentController::class, 'showRegistrationForm'])->name('agents.register');
+Route::post('/agents/register', [AgentController::class, 'storeRegistration'])->name('agents.register.store');
+
 // Enrollment Mockup Flow Routes
 Route::prefix('enroll')->group(function () {
     Route::get('/status/success', [StudentController::class, 'success'])->name('enroll.success');
     Route::get('/{course}', [StudentController::class, 'showSelection'])->name('enroll.selection');
     Route::post('/{course}/free-trial', [StudentController::class, 'storeFreeTrial'])->name('enroll.free');
     Route::post('/{course}/premium', [StudentController::class, 'storePremium'])->name('enroll.premium');
+    Route::post('/{course}/request-extension', [StudentController::class, 'requestExtension'])->name('enroll.extension');
 });
+
+// Google Classroom OAuth Callback Route
+Route::get('/auth/google/callback', [GoogleOAuthController::class, 'callback'])->name('google.callback');
 
 Route::get('/login',[LoginController::class, 'index'])->name('login');
 
@@ -64,13 +73,26 @@ Route::middleware([Authenticate::class, IsAdmin::class])->group(function () {
 
     // Agent Routes
     Route::get('/agents', [AgentController::class, 'index'])->name('agents');
+    Route::post('/admin/agents', [AgentController::class, 'storeAdmin'])->name('agents.admin.store');
+    Route::get('/admin/agents/{id}/edit', [AgentController::class, 'edit'])->name('agents.edit');
+    Route::put('/admin/agents/{id}', [AgentController::class, 'update'])->name('agents.update');
+    Route::delete('/admin/agents/{id}', [AgentController::class, 'destroy'])->name('agents.destroy');
 
 
     // Student Routes
     Route::get('/students', [StudentController::class, 'index'])->name('students');
+    Route::post('/students/{student}/approve', [StudentController::class, 'approvePayment'])->name('students.approve');
+    Route::post('/students/{student}/resend-invite', [StudentController::class, 'resendInvite'])->name('students.resend_invite');
+    Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+    Route::post('/students/{student}/unenroll', [StudentController::class, 'unenroll'])->name('students.unenroll');
+    Route::post('/students/{student}/approve-extension', [StudentController::class, 'approveExtension'])->name('students.approve_extension');
+    Route::post('/students/{student}/reject-extension', [StudentController::class, 'rejectExtension'])->name('students.reject_extension');
+
+    // Google Classroom OAuth Authorization Initiation Route
+    Route::get('/admin/google/auth', [GoogleOAuthController::class, 'redirect'])->name('google.auth');
 });
 
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::post('/agents', [LandingController::class, 'storeAgent'])->name('agents.store');
+Route::post('/agents', [AgentController::class, 'storeRegistration'])->name('agents.store');

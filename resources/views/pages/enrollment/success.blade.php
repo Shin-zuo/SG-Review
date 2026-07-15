@@ -9,14 +9,24 @@
 
     <div class="container mx-auto px-6 max-w-3xl relative z-10">
         
-        {{-- Reviewer Alert Banner --}}
-        <div class="mb-8 bg-blue-900 text-blue-100 rounded-2xl p-4 shadow-md flex items-start gap-3 border border-blue-700">
-            <span class="text-xl shrink-0 mt-0.5">💡</span>
+        {{-- System Integration Alert Banner --}}
+        @if(str_contains($mockData['status'] ?? '', 'Pending'))
+        <div class="mb-8 bg-amber-900 text-amber-100 rounded-2xl p-4 shadow-md flex items-start gap-3 border border-amber-700">
+            <span class="text-xl shrink-0 mt-0.5">⏳</span>
             <div class="text-xs leading-relaxed">
-                <strong class="font-black text-white uppercase tracking-wider">Reviewer Notice — Mockup Flow:</strong><br>
-                You are currently reviewing the simulated mockup confirmation screen. Xendit Payment redirection and Google Classroom auto-invite API execution have been bypassed during this review phase as requested.
+                <strong class="font-black text-white uppercase tracking-wider">Payment Verification in Progress:</strong><br>
+                We have initiated your Xendit GCash transaction. Once Xendit verifies the payment via our automated webhook (`invoice.paid`), your status will automatically change to <strong class="text-amber-300">Paid</strong> and your Google Classroom invitation will be sent to your email.
             </div>
         </div>
+        @else
+        <div class="mb-8 bg-emerald-900 text-emerald-100 rounded-2xl p-4 shadow-md flex items-start gap-3 border border-emerald-700">
+            <span class="text-xl shrink-0 mt-0.5">🚀</span>
+            <div class="text-xs leading-relaxed">
+                <strong class="font-black text-white uppercase tracking-wider">System Integrated & Active:</strong><br>
+                Your enrollment status is <strong class="text-emerald-300">{{ $mockData['status'] ?? 'Confirmed' }}</strong>. Your automated Google Classroom invitation via OAuth 2.0 has been triggered directly to your registered email address.
+            </div>
+        </div>
+        @endif
 
         {{-- Main Confirmation Card --}}
         <div class="bg-white rounded-3xl p-8 md:p-12 shadow-2xl border border-slate-200 text-center relative overflow-hidden">
@@ -85,35 +95,43 @@
             </div>
 
             {{-- Google Classroom & Actions Box --}}
-            <div class="space-y-4">
-                <div class="bg-blue-50/80 border-2 border-blue-200 rounded-2xl p-6 text-left">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
+            <div class="space-y-5">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50/80 border-2 border-blue-200 rounded-3xl p-6 md:p-7 text-left relative overflow-hidden shadow-sm">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-lg shadow-blue-600/20">
                             G
                         </div>
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-base">Google Classroom Access</h4>
-                            <p class="text-xs text-slate-500">Your mock Classroom invite code / destination is ready below:</p>
+                        <div class="space-y-2">
+                            <h4 class="font-black text-slate-900 text-lg">Google Classroom Invitation Sent via Email</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                To protect course security and prevent unauthorized invite link sharing, your official Google Classroom invitation has been dispatched directly to your registered email address (<strong class="text-blue-700 font-bold">{{ $mockData['student_email'] ?? 'your email' }}</strong>) via our Google OAuth 2.0 automated system.
+                            </p>
+                            <div class="bg-white/90 rounded-xl p-3.5 border border-blue-100/80 flex items-center gap-2.5 text-xs font-semibold text-slate-700 mt-3 shadow-sm">
+                                <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Please check your email inbox (and Spam/Promotions folder) and click <strong>"Join"</strong> on the official invitation email.</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4 flex flex-col sm:flex-row items-center gap-3">
-                        <input type="text" readonly value="{{ $mockData['google_classroom_id'] ?? 'https://classroom.google.com/c/sample-invite' }}" class="w-full font-mono text-xs bg-white px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-700 outline-none select-all">
-                        <a href="{{ str_starts_with($mockData['google_classroom_id'] ?? '', 'http') ? $mockData['google_classroom_id'] : 'https://classroom.google.com' }}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-md text-center block">
-                            Join Classroom
-                        </a>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <a href="{{ route('courses') }}" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all text-sm shadow-lg text-center">
-                        Explore Other Courses
+                @if(!empty($mockData['enrollment_link']))
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left text-xs text-amber-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div>
+                        <strong class="font-bold text-amber-950 block mb-0.5">System Maintenance Backup Form:</strong>
+                        <span>Reserved strictly if the automated enrollment system or Xendit payment API experiences an outage.</span>
+                    </div>
+                    <a href="{{ $mockData['enrollment_link'] }}" target="_blank" rel="noopener noreferrer" class="shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-xl transition-all shadow-sm text-xs text-center block">
+                        Backup Form
                     </a>
-                    @if(!empty($mockData['enrollment_link']))
-                    <a href="{{ $mockData['enrollment_link'] }}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-white hover:bg-slate-50 text-slate-700 font-bold py-3.5 px-6 rounded-xl border border-slate-300 transition-all text-sm text-center">
-                        View Backup Google Form
+                </div>
+                @endif
+
+                <div class="pt-2">
+                    <a href="{{ route('courses') }}" class="w-full inline-block bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-2xl transition-all text-sm shadow-xl text-center hover:-translate-y-0.5">
+                        Explore Other Available Programs
                     </a>
-                    @endif
                 </div>
             </div>
 

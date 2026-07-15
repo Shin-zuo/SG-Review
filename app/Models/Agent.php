@@ -13,7 +13,16 @@ class Agent extends Model
         'name',
         'email',
         'phone_number',
+        'facebook_link',
         'address',
         'agent_code',
     ];
+
+    /**
+     * Get the students/clients who used this agent's referral code.
+     */
+    public function referrals()
+    {
+        return $this->hasMany(Students::class, 'referral_code', 'agent_code');
+    }
 }

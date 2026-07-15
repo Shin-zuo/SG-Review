@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Automatically check and unenroll expired 7-day Free Trials every hour
+        $schedule->command('students:expire-trials')->hourly();
     }
 
     /**

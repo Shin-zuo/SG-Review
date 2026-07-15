@@ -34,6 +34,7 @@
         @method('PUT')
 
         <div class="p-6 md:p-8 space-y-6">
+            {{-- 1. Title and Acronym --}}
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label for="title" class="block text-sm font-bold text-slate-700">Course Title <span class="text-red-500">*</span></label>
@@ -46,11 +47,14 @@
                 </div>
             </div>
 
+            {{-- 2. Description --}}
             <div class="space-y-2">
                 <label for="description" class="block text-sm font-bold text-slate-700">Description <span class="text-red-500">*</span></label>
                 <textarea id="description" name="description" rows="3" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none resize-none">{{ old('description', $course->description) }}</textarea>
             </div>
 
+            {{-- 3. Price and Links --}}
+            <div class="grid md:grid-cols-2 gap-6 border-t border-slate-100 pt-6">
                 <div class="space-y-2">
                     <label for="price" class="block text-sm font-bold text-slate-700">Price (₱) <span class="text-red-500">*</span></label>
                     <input type="number" step="0.01" id="price" name="price" required value="{{ old('price', $course->price) }}" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
@@ -69,6 +73,7 @@
                 </div>
             </div>
 
+            {{-- 4. Theme Color, Badge & Image --}}
             <div class="grid md:grid-cols-3 gap-6 border-t border-slate-100 pt-6">
                 <div class="space-y-3">
                     <label class="block text-sm font-bold text-slate-700">Card Theme Color</label>
@@ -113,6 +118,7 @@
                 </div>
             </div>
 
+            {{-- 5. Modules & Lessons Section --}}
             <div class="border-t border-slate-100 pt-6">
                 <div class="flex items-center justify-between gap-3 mb-4">
                     <div>

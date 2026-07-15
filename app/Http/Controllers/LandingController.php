@@ -34,19 +34,7 @@ class LandingController extends Controller
      */
     public function storeAgent(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:agents,email',
-            'phone_number' => 'required|string|max:20',
-            'address' => 'required|string|max:255',
-            'agent_code' => 'required|string|max:50|unique:agents,agent_code',
-        ]);
-
-        // Create a new agent using the validated data
-        Agent::create($validated);
-
-        // Return a response or redirect as needed
-        return redirect()->back()->with('success', 'Thank you, you are now and official agent!');
+        return app(\App\Http\Controllers\AgentController::class)->storeRegistration($request);
     }
 
     /**

@@ -28,6 +28,9 @@ class Students extends Model
         'google_classroom_enrolled',
         'google_classroom_invite_id',
         'trial_expires_at',
+        'extension_status',
+        'extension_days',
+        'extension_reason',
     ];
 
     protected $casts = [
@@ -41,5 +44,10 @@ class Students extends Model
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class, 'referral_code', 'agent_code');
     }
 }

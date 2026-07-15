@@ -149,13 +149,12 @@
                                     </span>
                                 </div>
 
-                                {{-- <a href="{{ $course->enrollment_link }}" target="_blank" rel="noopener noreferrer"
-                                    class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center">
-                                    Enroll Now
-                                </a> --}}
                                 <button type="button" onclick="openModal('detailsModal-{{ $course->id }}')"
-                                    class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 block text-center cursor-pointer">
+                                    class="w-full bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white py-3.5 rounded-xl font-bold transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer">
                                     View Details
+                                    <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -281,15 +280,20 @@
                         </div>
                     </div>
 
-                    <div class="px-6 py-4 bg-white border-t border-slate-100 flex justify-end gap-3 shrink-0">
-                        <button onclick="closeModal('detailsModal-{{ $course->id }}')"
-                            class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
-                            Close
-                        </button>
-                        <a href="{{ $course->enrollment_link }}" target="_blank" rel="noopener noreferrer"
-                            class="px-6 py-2.5 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all">
-                            Enroll Now
+                    <div class="px-6 py-4 bg-white border-t border-slate-100 flex items-center justify-between shrink-0">
+                        <a href="{{ $course->enrollment_link }}" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-400 hover:text-slate-600 underline">
+                            Backup Google Form Link
                         </a>
+                        <div class="flex items-center gap-3">
+                            <button onclick="closeModal('detailsModal-{{ $course->id }}')"
+                                class="px-5 py-2.5 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">
+                                Close
+                            </button>
+                            <a href="{{ route('enroll.selection', ['course' => $course->id]) }}"
+                                class="px-6 py-2.5 rounded-full font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all hover:-translate-y-0.5">
+                                Enroll Now
+                            </a>
+                        </div>
                     </div>
 
                 </div>
@@ -297,48 +301,68 @@
         @endforeach
     </section>
 
-    <section id="agent" class="bg-white py-24 border-y border-slate-200/60">
-        <div class="container mx-auto px-6 max-w-6xl">
-            <div class="reveal opacity-0 translate-y-8 transition-all duration-700 ease-out text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Want To Be Part Of Our
-                    Growing Team?</h2>
-            </div>
+    <section id="agent" class="bg-white py-24 border-y border-slate-200/60 relative overflow-hidden">
+        {{-- Subtle ambient blur matching the header --}}
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-blue-50/80 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
-            <form method="POST" action="{{ route('agents.store') }}"
-                class="max-w-3xl mx-auto bg-slate-50 border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm hover:shadow-lg transition-all duration-300">
-                @csrf
-                <div class="grid md:grid-cols-2 gap-6">
-                    <input type="text" placeholder="Full Name"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300">
-                    <input type="email" placeholder="Email Address"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300">
-                    <input type="text" placeholder="Phone Number"
-                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300">
-                    <div class="relative w-full">
-                        <div class="relative">
-                            <input type="text" id="location-input" name="location" placeholder="Loading locations..."
-                                disabled autocomplete="off"
-                                class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300 disabled:bg-slate-100 disabled:cursor-not-allowed bg-white">
-                            <!-- Decorative Chevron Icon -->
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
+        <div class="container mx-auto px-6 max-w-6xl relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                
+                {{-- Badge --}}
+                <div class="reveal opacity-0 translate-y-8 transition-all duration-700 ease-out inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/80 border border-blue-200/80 text-blue-700 font-bold text-xs uppercase tracking-wider mb-6 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                    Official Partnership & Ambassador Program
+                </div>
+
+                {{-- Quote / Headline attracting agents --}}
+                <div class="reveal opacity-0 translate-y-8 transition-all duration-700 delay-100 ease-out">
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
+                        "Earn While Helping Future Topnotchers Succeed."
+                    </h2>
+                    <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+                        Join the nationwide <span class="font-bold text-slate-900">SG-Review Ambassador Network</span>. Share our industry-leading REBLEX, CELE, and CSE board exam reviewers with your classmates, peers, and network to earn a guaranteed <span class="text-blue-600 font-extrabold underline underline-offset-4">10% direct commission</span> on every single sale!
+                    </p>
+                </div>
+
+                {{-- Highlight Perks Grid --}}
+                <div class="reveal opacity-0 translate-y-8 transition-all duration-700 delay-200 ease-out grid md:grid-cols-3 gap-8 my-12 text-left">
+                    <div class="p-8 bg-slate-50/60 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-xl hover:border-blue-100 transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 text-2xl">
+                            💰
                         </div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900">10% Commission</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">Fast and reliable commission payouts via GCash or Bank Transfer whenever your custom referral code is used.</p>
+                    </div>
 
-                        <!-- The Custom Styled Dropdown Menu -->
-                        <ul id="custom-dropdown"
-                            class="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-lg shadow-xl max-h-60 overflow-y-auto hidden divide-y divide-slate-100 text-sm">
-                            <!-- JS will inject list items here -->
-                        </ul>
+                    <div class="p-8 bg-slate-50/60 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-xl hover:border-blue-100 transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 text-2xl">
+                            🚀
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900">Zero Cost & Instant Setup</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">Free to join with zero quotas. Get your custom promo code immediately and start promoting in minutes.</p>
+                    </div>
+
+                    <div class="p-8 bg-slate-50/60 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-xl hover:border-blue-100 transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 text-2xl">
+                            🏆
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900">Top-Rated Reviewers</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">Promote high-yield board exam reviewers engineered by topnotchers with proven passing rates nationwide.</p>
                     </div>
                 </div>
-                <button type="submit"
-                    class="mt-6 w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold text-lg transition-all shadow-lg shadow-blue-600/30 hover:-translate-y-1">Register</button>
-            </form>
+
+                {{-- CTA Button --}}
+                <div class="reveal opacity-0 translate-y-8 transition-all duration-700 delay-300 ease-out">
+                    <a href="{{ route('agents.register') }}"
+                        class="inline-flex items-center gap-3 px-10 py-5 rounded-full font-extrabold text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-1 transition-all duration-300 group">
+                        <span>Register As An Agent Today</span>
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
+                </div>
+
+            </div>
         </div>
     </section>
 
@@ -396,104 +420,17 @@
         });
 
 
-        //    this is for the city selections in form, it fetches the provinces and cities from the PSGC API and populates the datalist for the input field.
-        document.addEventListener("DOMContentLoaded", async () => {
-            const inputEl = document.getElementById("location-input");
-            const dropdownEl = document.getElementById("custom-dropdown");
-
-            // We will store all fetched locations in this array
-            let allLocations = [];
-
-            const PROVINCES_API = "https://psgc.gitlab.io/api/provinces.json";
-            const CITIES_API = "https://psgc.gitlab.io/api/cities-municipalities.json";
-
-            try {
-                const [provincesRes, citiesRes] = await Promise.all([
-                    fetch(PROVINCES_API),
-                    fetch(CITIES_API)
-                ]);
-
-                const provinces = await provincesRes.json();
-                const cities = await citiesRes.json();
-
-                // Format strings to match your preference
-                provinces.forEach(prov => allLocations.push(`${prov.name} (Province)`));
-                cities.forEach(city => allLocations.push(`${city.name} City/Municipality`));
-
-                // Sort alphabetically for a better user experience
-                allLocations.sort();
-
-                inputEl.placeholder = "Search City or Province...";
-                inputEl.disabled = false;
-
-            } catch (error) {
-                console.error("Failed to load locations:", error);
-                inputEl.placeholder = "City/Province (Type manually)";
-                inputEl.disabled = false;
-            }
-
-            // Function to render the list based on search query
-            function renderDropdown(filterText = "") {
-                dropdownEl.innerHTML = ""; // Clear existing
-
-                // Filter locations based on typing (case insensitive)
-                const filtered = allLocations.filter(loc =>
-                    loc.toLowerCase().includes(filterText.toLowerCase())
-                );
-
-                if (filtered.length === 0) {
-                    dropdownEl.innerHTML = `<li class="px-4 py-3 text-slate-500 italic">No matches found</li>`;
-                    return;
-                }
-
-                // Only show top 100 results so the browser doesn't freeze when rendering
-                filtered.slice(0, 100).forEach(loc => {
-                    const li = document.createElement("li");
-                    li.textContent = loc;
-                    // Add your Tailwind hover styles here!
-                    li.className =
-                        "px-4 py-2.5 cursor-pointer text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150";
-
-                    // When a user clicks a dropdown item, fill the input and hide dropdown
-                    li.addEventListener("click", () => {
-                        inputEl.value = loc;
-                        dropdownEl.classList.add("hidden");
-                    });
-
-                    dropdownEl.appendChild(li);
-                });
-            }   
-
-            // --- Event Listeners for Interaction ---
-
-            // 1. Show list when clicking into the input
-            inputEl.addEventListener("focus", () => {
-                renderDropdown(inputEl.value);
-                dropdownEl.classList.remove("hidden");
-            });
-
-            // 2. Filter list as user types
-            inputEl.addEventListener("input", (e) => {
-                renderDropdown(e.target.value);
-                dropdownEl.classList.remove("hidden");
-            });
-
-            // 3. Hide list if user clicks somewhere else on the page
-            document.addEventListener("click", (e) => {
-                if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
-                    dropdownEl.classList.add("hidden");
-                }
-            });
-        });
 
 
         // Open Modal Function
         function openModal(modalID) {
             const modal = document.getElementById(modalID);
             const modalContent = document.getElementById(modalID + 'Content');
+            if (!modal || !modalContent) return;
 
             // Remove hidden class first so it exists in the DOM
             modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
 
             // Small delay to allow the browser to register the element before animating
             setTimeout(() => {
@@ -506,6 +443,7 @@
         function closeModal(modalID) {
             const modal = document.getElementById(modalID);
             const modalContent = document.getElementById(modalID + 'Content');
+            if (!modal || !modalContent) return;
 
             // Start the fade out animation
             modal.classList.add('opacity-0');
@@ -515,6 +453,7 @@
             // Wait for the animation to finish before completely hiding it (300ms matches Tailwind duration)
             setTimeout(() => {
                 modal.classList.add('hidden');
+                document.body.style.overflow = '';
             }, 300);
         }
     </script>

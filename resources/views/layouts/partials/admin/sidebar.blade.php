@@ -27,7 +27,7 @@
         </a>
 
 
-        <a href="#" 
+        <a href="{{ route('students') }}" 
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all
            {{ request()->routeIs('students*') ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
