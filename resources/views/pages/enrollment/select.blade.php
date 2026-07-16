@@ -117,7 +117,7 @@
                                             <input type="hidden" name="student_id" value="{{ session('existing_trial_id') }}">
                                             <div>
                                                 <label class="block text-xs font-bold text-slate-700 mb-1">Reason for Extension Request <span class="text-red-500">*</span></label>
-                                                <input type="text" name="extension_reason" required placeholder="e.g., Was busy with midterms and need 3 extra days to finish review mock exams..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                                <input type="text" name="extension_reason" required placeholder="e.g., Was busy with midterms and need 3 extra days to finish review mock exams..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white text-slate-900 placeholder:text-slate-400">
                                             </div>
                                             <div class="flex items-center justify-end">
                                                 <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-md hover:shadow-lg">
@@ -244,11 +244,11 @@
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">Full Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="student_name" required placeholder="e.g., Maria Santos" value="{{ old('student_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="text" name="student_name" required placeholder="e.g., Maria Santos" value="{{ old('student_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">Email Address <span class="text-red-500">*</span></label>
-                            <input type="email" name="student_email" required placeholder="maria.santos@gmail.com" value="{{ old('student_email') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="email" name="student_email" required placeholder="maria.santos@gmail.com" value="{{ old('student_email') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                             <p class="text-[11px] text-slate-400">Make sure this is active for Google Classroom.</p>
                         </div>
                     </div>
@@ -256,11 +256,11 @@
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">Mobile Number <span class="text-red-500">*</span></label>
-                            <input type="text" name="student_phone" required placeholder="e.g., 09171234567" value="{{ old('student_phone') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="text" name="student_phone" required placeholder="e.g., 09171234567" value="{{ old('student_phone') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">School / Branch / Campus <span class="text-red-500">*</span></label>
-                            <input type="text" name="school_name" required placeholder="e.g., UP Diliman / Cebu Branch" value="{{ old('school_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="text" name="school_name" required placeholder="e.g., UP Diliman / Cebu Branch" value="{{ old('school_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                         </div>
                     </div>
 
@@ -269,7 +269,7 @@
                             <label class="block text-sm font-bold text-slate-700">Referral / Promo Code <span class="text-slate-400 font-normal">(Optional)</span></label>
                             <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-md uppercase tracking-wide border border-blue-100">Referral System</span>
                         </div>
-                        <input type="text" name="referral_code" placeholder="e.g. AGENT-2026 or REF-1234" value="{{ old('referral_code') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all uppercase font-mono tracking-wider">
+                        <input type="text" name="referral_code" placeholder="e.g. AGENT-2026 or REF-1234" value="{{ old('referral_code') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all uppercase font-mono tracking-wider bg-white text-slate-900 placeholder:text-slate-400">
                         <p class="text-[11px] text-slate-400">If you were referred by an ambassador or agent, enter their code here.</p>
                     </div>
 
@@ -294,11 +294,11 @@
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">Full Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="student_name" required placeholder="e.g., Maria Santos" value="{{ old('student_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="text" name="student_name" required placeholder="e.g., Maria Santos" value="{{ old('student_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">Email Address (Google Classroom) <span class="text-red-500">*</span></label>
-                            <input type="email" name="student_email" required placeholder="maria.santos@gmail.com" value="{{ old('student_email') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="email" name="student_email" required placeholder="maria.santos@gmail.com" value="{{ old('student_email') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                             <p class="text-[11px] text-blue-600 font-semibold">Required: Google Classroom invite will be linked here.</p>
                         </div>
                     </div>
@@ -306,11 +306,11 @@
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">Mobile Number <span class="text-red-500">*</span></label>
-                            <input type="text" name="student_phone" required placeholder="e.g., 09171234567" value="{{ old('student_phone') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="text" name="student_phone" required placeholder="e.g., 09171234567" value="{{ old('student_phone') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700">School / Branch / Campus <span class="text-red-500">*</span></label>
-                            <input type="text" name="school_name" required placeholder="e.g., UP Diliman / Cebu Branch" value="{{ old('school_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                            <input type="text" name="school_name" required placeholder="e.g., UP Diliman / Cebu Branch" value="{{ old('school_name') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-white text-slate-900 placeholder:text-slate-400">
                         </div>
                     </div>
 
@@ -319,7 +319,7 @@
                             <label class="block text-sm font-bold text-slate-700">Referral / Promo Code <span class="text-slate-400 font-normal">(Optional)</span></label>
                             <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-md uppercase tracking-wide border border-blue-100">Referral System</span>
                         </div>
-                        <input type="text" name="referral_code" placeholder="e.g. AGENT-2026 or REF-1234" value="{{ old('referral_code') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all uppercase font-mono tracking-wider">
+                        <input type="text" name="referral_code" placeholder="e.g. AGENT-2026 or REF-1234" value="{{ old('referral_code') }}" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all uppercase font-mono tracking-wider bg-white text-slate-900 placeholder:text-slate-400">
                         <p class="text-[11px] text-slate-400">If you were referred by an ambassador or agent, enter their code here.</p>
                     </div>
 

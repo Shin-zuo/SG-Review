@@ -31,5 +31,7 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/vendor
+public/build
+public/hot
 LICENSE
 README.md

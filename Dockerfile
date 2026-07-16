@@ -47,14 +47,14 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Copy PHP dependencies from deps stage
+# Copy application files first and assign to www-data
+COPY --chown=www-data:www-data . /var/www/html
+
+# Copy PHP dependencies from deps stage (overwriting any local/stale vendor directory)
 COPY --from=deps --chown=www-data:www-data /app/vendor/ /var/www/html/vendor
 
-# Copy Vite built assets (manifest + CSS/JS) from frontend stage
+# Copy Vite built assets (manifest + CSS/JS) from frontend stage (overwriting any local/stale public/build)
 COPY --from=frontend --chown=www-data:www-data /app/public/build /var/www/html/public/build
-
-# Copy the remaining application files and assign to www-data
-COPY --chown=www-data:www-data . /var/www/html
 
 # Fix permissions for Laravel storage and cache directories
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
@@ -64,7 +64,7 @@ EXPOSE 80
 # Start Apache with dynamic $PORT support, run database migrations/seeders, and clear stale package cache before boot
 CMD chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true \
     && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true \
-    && rm -f /var/www/html/bootstrap/cache/*.php \
+    && rm -f /var/www/html/bootstrap/cache/*.php /var/www/html/public/hot \
     && sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf \
     && sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT:-80}>/g" /etc/apache2/sites-available/000-default.conf \
     && php artisan config:clear 2>/dev/null || true \
