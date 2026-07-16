@@ -2,6 +2,28 @@
 
 use Illuminate\Support\Str;
 
+$dbConnection = env('DB_CONNECTION');
+$dbUrl = env('DATABASE_URL');
+
+// Automatically detect connection driver from DATABASE_URL if DB_CONNECTION is unset or mismatched
+if ($dbUrl) {
+    if (Str::startsWith($dbUrl, ['postgres://', 'postgresql://'])) {
+        $dbConnection = 'pgsql';
+    } elseif (Str::startsWith($dbUrl, ['mysql://'])) {
+        $dbConnection = 'mysql';
+    } elseif (Str::startsWith($dbUrl, ['sqlite://'])) {
+        $dbConnection = 'sqlite';
+    }
+}
+
+$dbConnection = $dbConnection ?: 'mysql';
+
+// If connection is pgsql and DB_PORT is set to 3306 (MySQL default), fall back to 5432
+$pgsqlPort = env('DB_PORT', '5432');
+if ($dbConnection === 'pgsql' && $pgsqlPort === '3306') {
+    $pgsqlPort = '5432';
+}
+
 return [
 
     /*
@@ -15,7 +37,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => $dbConnection,
 
     /*
     |--------------------------------------------------------------------------
@@ -67,7 +89,7 @@ return [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
+            'port' => $pgsqlPort,
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),

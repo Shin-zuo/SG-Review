@@ -30,18 +30,19 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
 ################################################################################
 FROM php:8.2-apache AS final
 
-# Install PostgreSQL driver and system dependencies
+# Install PostgreSQL/MySQL drivers and system dependencies
 RUN apt-get update && apt-get install -y libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up the production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Set Apache DocumentRoot to Laravel's public directory
+# Set Apache DocumentRoot to Laravel's public directory and set global ServerName to suppress warnings
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -63,8 +64,9 @@ EXPOSE 80
 # Start Apache with dynamic $PORT support, run database migrations/seeders, and clear stale package cache before boot
 CMD chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true \
     && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true \
-    && rm -f /var/www/html/bootstrap/cache/packages.php /var/www/html/bootstrap/cache/services.php \
+    && rm -f /var/www/html/bootstrap/cache/*.php \
     && sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf \
     && sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT:-80}>/g" /etc/apache2/sites-available/000-default.conf \
+    && php artisan config:clear 2>/dev/null || true \
     && php artisan migrate --force --seed 2>/dev/null || true \
     && apache2-foreground

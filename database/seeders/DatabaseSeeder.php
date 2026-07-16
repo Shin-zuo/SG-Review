@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        \App\Models\User::updateOrCreate(
+        \App\Models\User::firstOrCreate(
             ['username' => 'admin'],
             [
                 'name' => 'Admin',
