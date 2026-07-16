@@ -19,7 +19,7 @@
                     Join Our Growing Ambassador Network
                 </h1>
                 <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                    Empower aspiring PRC topnotchers across the Philippines while earning a lucrative <span class="font-bold text-blue-600">10% direct commission</span> on every successful enrollment.
+                    Empower aspiring PRC topnotchers across the Philippines while earning a lucrative <span class="font-bold text-blue-600">up to 20% direct commission</span> on every successful enrollment.
                 </p>
             </div>
 
@@ -42,12 +42,12 @@
                                     💰
                                 </div>
                                 <div>
-                                    <h4 class="font-black text-lg text-white">10% Direct Commission</h4>
+                                    <h4 class="font-black text-lg text-white">Up to 20% Direct Commission</h4>
                                     <p class="text-xs text-blue-200 font-medium">On every course enrolled with your code</p>
                                 </div>
                             </div>
                             <p class="text-sm text-slate-300 mt-3 leading-relaxed">
-                                Earn substantial, reliable payouts every time a student registers using your unique referral code. Whether you refer 5 students or 500, your 10% rate is guaranteed!
+                                Earn substantial, reliable payouts every time a student registers using your unique referral code. Whether you refer 5 students or 500, your commission rate is guaranteed!
                             </p>
                         </div>
 

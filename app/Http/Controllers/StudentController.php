@@ -244,6 +244,16 @@ class StudentController extends Controller
             try {
                 $student = Students::with('course')->where('reference_id', $referenceId)->first();
                 if ($student) {
+                    // Proactively verify with Xendit and trigger Google Classroom auto-enrollment if pending
+                    if (!$student->is_paid || $student->status === 'pending') {
+                        try {
+                            app(XenditPaymentService::class)->verifyAndSyncInvoice($student);
+                            $student->refresh();
+                        } catch (\Exception $ex) {
+                            Log::error("Failed to verify and sync Xendit invoice on success page: " . $ex->getMessage());
+                        }
+                    }
+
                     $course = $student->course;
                     $statusDisplay = match ($student->status) {
                         'paid' => 'Paid & Confirmed',

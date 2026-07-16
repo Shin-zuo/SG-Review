@@ -15,10 +15,10 @@ class WebhookController extends Controller
     public function handleXenditInvoice(Request $request)
     {
         $callbackToken = config('services.xendit.callback_token');
-        $receivedToken = $request->header('x-callback-token');
+        $receivedToken = $request->header('x-callback-token') ?? $request->header('X-CALLBACK-TOKEN');
 
         // 1. Verify Xendit Callback Signature Token if configured
-        if (!empty($callbackToken) && $receivedToken !== $callbackToken) {
+        if (!empty($callbackToken) && trim((string) $receivedToken) !== trim((string) $callbackToken)) {
             Log::warning("Unauthorized Xendit Webhook signature received.", [
                 'expected' => $callbackToken,
                 'received' => $receivedToken,
@@ -26,9 +26,9 @@ class WebhookController extends Controller
             return response()->json(['error' => 'Unauthorized signature'], 401);
         }
 
-        // 2. Extract Data
-        $externalId = $request->input('external_id');
-        $status = strtoupper((string) $request->input('status'));
+        // 2. Extract Data (Support both top-level and nested `data` object from Xendit v2 callbacks)
+        $externalId = $request->input('external_id') ?? $request->input('data.external_id') ?? $request->input('id');
+        $status = strtoupper((string) ($request->input('status') ?? $request->input('data.status') ?? ''));
 
         Log::info("Received Xendit Webhook for reference: {$externalId} with status: {$status}");
 
@@ -36,10 +36,12 @@ class WebhookController extends Controller
             return response()->json(['error' => 'Missing external_id'], 400);
         }
 
-        $student = Students::where('reference_id', $externalId)->first();
+        $student = Students::where('reference_id', $externalId)
+            ->orWhere('xendit_invoice_id', $externalId)
+            ->first();
 
         if (!$student) {
-            Log::warning("Xendit Webhook: Student record not found for reference ID: {$externalId}");
+            Log::warning("Xendit Webhook: Student record not found for reference ID / invoice ID: {$externalId}");
             return response()->json(['error' => 'Student enrollment not found'], 404);
         }
 
@@ -55,8 +57,8 @@ class WebhookController extends Controller
                 'status' => 'paid',
                 'is_paid' => true,
                 'paid_at' => now(),
-                'payment_channel' => $request->input('payment_channel', 'GCASH'),
-                'xendit_invoice_id' => $request->input('id', $student->xendit_invoice_id),
+                'payment_channel' => $request->input('payment_channel') ?? $request->input('data.payment_channel', 'GCASH'),
+                'xendit_invoice_id' => $request->input('id') ?? $request->input('data.id', $student->xendit_invoice_id),
             ]);
 
             // 5. Trigger Google Classroom Auto-Invitation
@@ -68,6 +70,9 @@ class WebhookController extends Controller
                 'status' => strtolower($status),
             ]);
             Log::info("Updated status to {$status} for reference: {$externalId}");
+        } else {
+            // Proactively double-check Xendit status if status received is unexpected or pending
+            app(\App\Services\XenditPaymentService::class)->verifyAndSyncInvoice($student);
         }
 
         return response()->json(['status' => 'success']);

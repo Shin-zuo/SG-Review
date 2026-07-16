@@ -111,4 +111,99 @@ class XenditPaymentService
             'is_fallback' => true,
         ];
     }
+
+    /**
+     * Verify invoice status with Xendit API directly and synchronize student enrollment & Classroom invitation.
+     *
+     * @param Students $student
+     * @return bool
+     */
+    public function verifyAndSyncInvoice(Students $student): bool
+    {
+        // 1. Idempotency Check: If already marked as paid, no need to re-verify
+        if ($student->is_paid || $student->status === 'paid') {
+            return true;
+        }
+
+        // If no invoice ID is present, we cannot verify via Xendit ID
+        if (empty($student->xendit_invoice_id) && empty($student->reference_id)) {
+            return false;
+        }
+
+        // 2. Handle mock / simulated fallback invoices immediately
+        if (!empty($student->xendit_invoice_id) && str_starts_with($student->xendit_invoice_id, 'mock_')) {
+            $student->update([
+                'status' => 'paid',
+                'is_paid' => true,
+                'paid_at' => now(),
+                'payment_channel' => $student->payment_channel ?: 'GCASH',
+            ]);
+
+            app(GoogleClassroomService::class)->enrollStudent($student);
+            Log::info("Verified and auto-enrolled mock Xendit invoice for reference: {$student->reference_id}");
+            return true;
+        }
+
+        $secretKey = config('services.xendit.secret_key');
+        if (empty($secretKey)) {
+            Log::warning("Xendit secret key missing during invoice status verification for reference: {$student->reference_id}");
+            return false;
+        }
+
+        try {
+            $invoiceData = null;
+
+            // Option A: Query by exact Xendit Invoice ID if available
+            if (!empty($student->xendit_invoice_id)) {
+                $response = Http::withBasicAuth($secretKey, '')
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->get("https://api.xendit.co/v2/invoices/{$student->xendit_invoice_id}");
+
+                if ($response->successful()) {
+                    $invoiceData = $response->json();
+                }
+            }
+
+            // Option B: If not found or ID missing, query by external_id (reference_id)
+            if (empty($invoiceData) && !empty($student->reference_id)) {
+                $response = Http::withBasicAuth($secretKey, '')
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->get("https://api.xendit.co/v2/invoices?external_id={$student->reference_id}");
+
+                if ($response->successful() && !empty($response->json())) {
+                    $invoices = $response->json();
+                    $invoiceData = is_array($invoices) && isset($invoices[0]) ? $invoices[0] : $invoices;
+                }
+            }
+
+            if (!empty($invoiceData)) {
+                $status = strtoupper((string) ($invoiceData['status'] ?? ''));
+
+                if (in_array($status, ['PAID', 'SETTLED'])) {
+                    $student->update([
+                        'status' => 'paid',
+                        'is_paid' => true,
+                        'paid_at' => isset($invoiceData['paid_at']) ? \Carbon\Carbon::parse($invoiceData['paid_at']) : now(),
+                        'payment_channel' => $invoiceData['payment_channel'] ?? ($student->payment_channel ?: 'GCASH'),
+                        'xendit_invoice_id' => $invoiceData['id'] ?? $student->xendit_invoice_id,
+                    ]);
+
+                    // Trigger Google Classroom invitation
+                    app(GoogleClassroomService::class)->enrollStudent($student);
+
+                    Log::info("Successfully verified via Xendit API and triggered Classroom enrollment for student: {$student->student_email}");
+                    return true;
+                } elseif (in_array($status, ['EXPIRED', 'FAILED'])) {
+                    $student->update([
+                        'status' => strtolower($status),
+                    ]);
+                    Log::info("Xendit API verified status {$status} for reference: {$student->reference_id}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Exception verifying Xendit invoice status: " . $e->getMessage());
+        }
+
+        return false;
+    }
 }
