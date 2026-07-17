@@ -71,11 +71,11 @@
 
             <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Revenue</p>
-                    <h3 class="text-2xl font-bold text-slate-800 mt-1">₱{{ number_format($totalRevenue ?? 0, 2) }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Upgraded to Premium</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ number_format($totalUpgradedTrials ?? 0) }}</h3>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
-                    💰
+                <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                    🚀
                 </div>
             </div>
         </div>
@@ -271,7 +271,11 @@
                                         </span>
                                     </td>
                                     <td class="py-4 px-6">
-                                        @if($student->trial_expires_at)
+                                        @if($student->status === 'upgraded')
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-purple-900 border border-purple-300">
+                                                <span>⭐</span> Upgraded to Premium
+                                            </span>
+                                        @elseif($student->trial_expires_at)
                                             @if($student->trial_expires_at->isPast() || $student->status === 'expired')
                                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-900 border border-red-300">
                                                     Expired
@@ -346,7 +350,7 @@
                                                     Resend
                                                 </button>
                                             </form>
-                                            @if($student->google_classroom_enrolled)
+                                            @if($student->google_classroom_enrolled && $student->status !== 'upgraded')
                                                 <form action="{{ route('students.unenroll', $student->id) }}" method="POST" title="Revoke Classroom Access">
                                                     @csrf
                                                     <button type="submit" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold text-xs rounded-lg transition border border-amber-200" onclick="return confirm('Revoke Google Classroom access for {{ $student->student_email }}?')">

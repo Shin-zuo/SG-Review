@@ -108,12 +108,12 @@
                                 $totalSales = $agent->referrals->where('is_paid', true)->sum('amount');
                                 $agentCommission = $totalSales * 0.10;
                             @endphp
-                            <tr class="hover:bg-slate-50/80 transition-colors">
+                            <tr class="hover:bg-slate-50/80 transition-colors cursor-pointer" onclick='openAgentDetailsModal({{ json_encode($agent) }}, {{ json_encode($agent->referrals ?? []) }})'>
                                 <td class="py-4 px-6">
                                     <div class="font-bold text-slate-800">{{ $agent->name }}</div>
                                     <div class="text-xs text-slate-500">{{ $agent->email }} | {{ $agent->phone_number }}</div>
                                     @if($agent->facebook_link)
-                                        <a href="{{ $agent->facebook_link }}" target="_blank" class="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 mt-0.5">
+                                        <a href="{{ $agent->facebook_link }}" target="_blank" onclick="event.stopPropagation()" class="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 mt-0.5">
                                             <span>Facebook Profile</span> ↗
                                         </a>
                                     @endif
@@ -129,7 +129,7 @@
                                             {{ $referralsCount }} Student{{ $referralsCount !== 1 ? 's' : '' }}
                                         </span>
                                         @if($referralsCount > 0)
-                                            <button onclick='openClientsModal({{ json_encode($agent) }}, {{ json_encode($agent->referrals) }})' type="button"
+                                            <button onclick='event.stopPropagation(); openClientsModal({{ json_encode($agent) }}, {{ json_encode($agent->referrals) }})' type="button"
                                                 class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-md transition cursor-pointer">
                                                 View Clients
                                             </button>
@@ -146,12 +146,12 @@
                                     <div class="text-xs text-slate-400">from ₱{{ number_format($totalSales, 2) }} total sales</div>
                                 </td>
                                 <td class="py-4 px-6 text-right space-x-2">
-                                    <button onclick='openEditModal({{ json_encode($agent) }})' type="button"
+                                    <button onclick='event.stopPropagation(); openEditModal({{ json_encode($agent) }})' type="button"
                                         class="inline-flex items-center px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold text-xs transition cursor-pointer">
                                         Edit
                                     </button>
 
-                                    <form action="{{ route('agents.destroy', $agent->id) }}" method="POST" class="inline-block delete-agent-form">
+                                    <form action="{{ route('agents.destroy', $agent->id) }}" method="POST" class="inline-block delete-agent-form" onclick="event.stopPropagation()">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -404,11 +404,96 @@
             const addModal = document.getElementById('addAgentModal');
             const editModal = document.getElementById('editAgentModal');
             const clientsModal = document.getElementById('clientsModal');
+            const detailsModal = document.getElementById('agentDetailsModal');
 
             if (e.target === addModal) closeAddModal();
             if (e.target === editModal) closeEditModal();
             if (e.target === clientsModal) closeClientsModal();
+            if (e.target === detailsModal) closeAgentDetailsModal();
         });
+
+        let currentDetailsAgent = null;
+
+        function openAgentDetailsModal(agent, referrals) {
+            currentDetailsAgent = agent;
+            document.getElementById('agentDetailsInitials').textContent = (agent.name || 'AG').substring(0, 2).toUpperCase();
+            document.getElementById('agentDetailsName').textContent = agent.name || 'Unknown Ambassador';
+            document.getElementById('agentDetailsCodeBadge').innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg> Code: ${agent.agent_code || 'N/A'}`;
+            
+            document.getElementById('agentDetailsEmail').textContent = agent.email || 'N/A';
+            document.getElementById('agentDetailsPhone').textContent = agent.phone_number || 'N/A';
+            document.getElementById('agentDetailsAddress').textContent = agent.address || 'Online Ambassador';
+
+            const fbContainer = document.getElementById('agentDetailsFacebook');
+            if (agent.facebook_link) {
+                fbContainer.innerHTML = `<a href="${agent.facebook_link}" target="_blank" onclick="event.stopPropagation()" class="text-blue-600 hover:underline inline-flex items-center gap-1 font-semibold">Visit Facebook Profile ↗</a>`;
+            } else {
+                fbContainer.innerHTML = `<span class="text-slate-400 font-medium">Not provided</span>`;
+            }
+
+            const refList = referrals || [];
+            const totalRef = refList.length || (agent.referrals_count || 0);
+            const paidList = refList.filter(c => c.is_paid || c.status === 'paid' || c.status === 'active');
+            const totalSales = refList.reduce((acc, c) => {
+                const isPaid = c.is_paid || c.status === 'paid' || c.status === 'active';
+                return acc + (isPaid ? Number(c.amount || 0) : 0);
+            }, 0);
+            const commission = totalSales * 0.10;
+
+            document.getElementById('agentDetailsTotalReferrals').textContent = totalRef;
+            document.getElementById('agentDetailsPaidReferrals').textContent = paidList.length;
+            document.getElementById('agentDetailsCommission').textContent = `₱${commission.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('agentDetailsReferralCountBadge').textContent = `${refList.length} total records`;
+
+            const tbody = document.getElementById('agentDetailsReferralsTbody');
+            tbody.innerHTML = '';
+
+            if (refList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400 text-xs">No students referred by this ambassador yet.</td></tr>`;
+            } else {
+                refList.forEach(c => {
+                    const isPaid = c.is_paid || c.status === 'paid' || c.status === 'active';
+                    const amount = Number(c.amount || 0);
+                    const courseTitle = c.course ? (c.course.acronym || c.course.title || 'Course') : 'Reviewer';
+                    const planBadge = c.plan_type === 'premium' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600';
+                    const statusBadge = isPaid ? 'text-emerald-600 font-bold' : 'text-amber-600 font-medium';
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/80';
+                    row.innerHTML = `
+                        <td class="py-2.5 px-3.5 font-bold text-slate-800">${c.student_name || 'Anonymous'}</td>
+                        <td class="py-2.5 px-3.5 text-slate-600 font-medium">${courseTitle}</td>
+                        <td class="py-2.5 px-3.5">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${planBadge}">${c.plan_type || 'Trial'}</span>
+                            <span class="ml-1 text-[11px] ${statusBadge}">${c.status || ''}</span>
+                        </td>
+                        <td class="py-2.5 px-3.5 text-right font-bold ${isPaid ? 'text-emerald-700' : 'text-slate-400'}">₱${amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            const modal = document.getElementById('agentDetailsModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeAgentDetailsModal() {
+            const modal = document.getElementById('agentDetailsModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function editCurrentDetailsAgent() {
+            closeAgentDetailsModal();
+            if (currentDetailsAgent) {
+                openEditModal(currentDetailsAgent);
+            }
+        }
 
         // SweetAlert Delete Confirmation matching reviewer.blade.php
         document.querySelectorAll('.delete-agent-form').forEach(form => {
@@ -436,4 +521,94 @@
             });
         });
     </script>
+
+    {{-- AGENT DETAILS MODAL --}}
+    <div id="agentDetailsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+            {{-- Header --}}
+            <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-5">
+                <div class="flex items-center gap-4">
+                    <div id="agentDetailsInitials" class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 font-black text-lg flex items-center justify-center shrink-0 shadow-sm border border-emerald-200"></div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="agentDetailsName" class="text-xl font-bold text-slate-800"></h3>
+                            <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-100">Ambassador</span>
+                        </div>
+                        <p id="agentDetailsCodeBadge" class="text-xs font-mono font-bold text-emerald-600 mt-1 flex items-center gap-1.5"></p>
+                    </div>
+                </div>
+                <button onclick="closeAgentDetailsModal()" type="button" class="text-slate-400 hover:text-slate-600 text-2xl font-bold cursor-pointer leading-none">×</button>
+            </div>
+
+            {{-- Scrollable Content Area --}}
+            <div class="overflow-y-auto flex-1 space-y-6 pr-1">
+                {{-- Contact Information Grid --}}
+                <div class="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Email Address</span>
+                        <span id="agentDetailsEmail" class="font-semibold text-slate-700 break-all mt-0.5 block"></span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Contact Number</span>
+                        <span id="agentDetailsPhone" class="font-semibold text-slate-700 mt-0.5 block"></span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Address / Location</span>
+                        <span id="agentDetailsAddress" class="font-semibold text-slate-700 mt-0.5 block"></span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Facebook Profile</span>
+                        <div id="agentDetailsFacebook" class="mt-0.5"></div>
+                    </div>
+                </div>
+
+                {{-- Performance Metrics Cards --}}
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-blue-50/60 rounded-2xl p-4 border border-blue-100 text-center sm:text-left">
+                        <span class="text-[11px] font-bold uppercase text-blue-600 block">Total Referrals</span>
+                        <h4 id="agentDetailsTotalReferrals" class="text-xl sm:text-2xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
+                    <div class="bg-emerald-50/60 rounded-2xl p-4 border border-emerald-100 text-center sm:text-left">
+                        <span class="text-[11px] font-bold uppercase text-emerald-600 block">Paid Enrollees</span>
+                        <h4 id="agentDetailsPaidReferrals" class="text-xl sm:text-2xl font-black text-emerald-700 mt-1">0</h4>
+                    </div>
+                    <div class="bg-amber-50/60 rounded-2xl p-4 border border-amber-100 text-center sm:text-left">
+                        <span class="text-[11px] font-bold uppercase text-amber-600 block">10% Commission</span>
+                        <h4 id="agentDetailsCommission" class="text-lg sm:text-xl font-black text-amber-600 mt-1">₱0.00</h4>
+                    </div>
+                </div>
+
+                {{-- Mini Table of Referred Students --}}
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center justify-between">
+                        <span>Referred Students History</span>
+                        <span id="agentDetailsReferralCountBadge" class="text-[11px] font-normal text-slate-400"></span>
+                    </h4>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm max-h-[220px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-400 uppercase tracking-wider sticky top-0 bg-slate-50">
+                                    <th class="py-2.5 px-3.5">Student Name</th>
+                                    <th class="py-2.5 px-3.5">Course</th>
+                                    <th class="py-2.5 px-3.5">Plan / Status</th>
+                                    <th class="py-2.5 px-3.5 text-right">Paid Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agentDetailsReferralsTbody" class="divide-y divide-slate-100">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Footer --}}
+            <div class="pt-5 mt-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="editCurrentDetailsAgent()" type="button" class="px-5 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-sm cursor-pointer transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Edit Ambassador Details
+                </button>
+                <button onclick="closeAgentDetailsModal()" type="button" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer transition">Close Details</button>
+            </div>
+        </div>
+    </div>
 @endsection

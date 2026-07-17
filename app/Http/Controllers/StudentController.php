@@ -28,15 +28,32 @@ class StudentController extends Controller
                 ->latest()
                 ->paginate(10, ['*'], 'premium_page');
 
+            // Proactively sync historical records: mark any active free trial as 'upgraded' if the student has a paid/confirmed premium enrollment
+            $upgradedEmailsByCourse = Students::where('plan_type', 'premium')
+                ->where(function ($query) {
+                    $query->where('is_paid', true)->orWhere('status', 'paid');
+                })
+                ->get(['student_email', 'course_id']);
+
+            foreach ($upgradedEmailsByCourse as $paidRecord) {
+                Students::where('student_email', $paidRecord->student_email)
+                    ->where('course_id', $paidRecord->course_id)
+                    ->where('plan_type', 'free_trial')
+                    ->where('status', 'active')
+                    ->update(['status' => 'upgraded']);
+            }
+
             $totalRevenue = Students::where('is_paid', true)->sum('amount');
-            $totalActiveTrials = Students::where('plan_type', 'free_trial')->count();
+            $totalActiveTrials = Students::where('plan_type', 'free_trial')->where('status', 'active')->count();
+            $totalUpgradedTrials = Students::where('plan_type', 'free_trial')->where('status', 'upgraded')->count();
             $totalPremiumPaid = Students::where('plan_type', 'premium')->where('is_paid', true)->count();
             $totalStudentsCount = Students::count();
         } catch (\Exception $e) {
-            $freeTrialStudents = collect([]);
-            $premiumStudents = collect([]);
+            $freeTrialStudents = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+            $premiumStudents = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
             $totalRevenue = 0;
             $totalActiveTrials = 0;
+            $totalUpgradedTrials = 0;
             $totalPremiumPaid = 0;
             $totalStudentsCount = 0;
             Log::warning("Students table query failed: " . $e->getMessage());
@@ -47,6 +64,7 @@ class StudentController extends Controller
             'premiumStudents',
             'totalRevenue',
             'totalActiveTrials',
+            'totalUpgradedTrials',
             'totalPremiumPaid',
             'totalStudentsCount'
         ));
@@ -320,6 +338,13 @@ class StudentController extends Controller
 
         app(\App\Services\GoogleClassroomService::class)->enrollStudent($student);
 
+        // Option A: Automatically upgrade any active free trial for this student
+        Students::where('student_email', $student->student_email)
+            ->where('course_id', $student->course_id)
+            ->where('plan_type', 'free_trial')
+            ->where('status', 'active')
+            ->update(['status' => 'upgraded']);
+
         return redirect()->back()->with('success', "Payment confirmed and Google Classroom invitation sent to {$student->student_email}!");
     }
 
@@ -347,8 +372,10 @@ class StudentController extends Controller
     public function destroy(Students $student)
     {
         $email = $student->student_email;
-        // Revoke classroom access first
-        app(\App\Services\GoogleClassroomService::class)->unenrollStudent($student);
+        // Revoke classroom access first unless they upgraded to premium
+        if ($student->status !== 'upgraded') {
+            app(\App\Services\GoogleClassroomService::class)->unenrollStudent($student);
+        }
 
         // Delete from database
         $student->delete();
@@ -362,7 +389,11 @@ class StudentController extends Controller
     public function unenroll(Students $student)
     {
         $email = $student->student_email;
-        app(\App\Services\GoogleClassroomService::class)->unenrollStudent($student);
+        if ($student->status !== 'upgraded') {
+            app(\App\Services\GoogleClassroomService::class)->unenrollStudent($student);
+        } else {
+            return redirect()->back()->with('success', "Student {$email} has already upgraded to Premium; Classroom unenrollment skipped.");
+        }
 
         return redirect()->back()->with('success', "Student {$email} has been unenrolled/revoked from Google Classroom.");
     }

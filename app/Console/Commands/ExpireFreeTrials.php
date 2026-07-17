@@ -43,6 +43,21 @@ class ExpireFreeTrials extends Command
 
         $count = 0;
         foreach ($expiredStudents as $student) {
+            // Check if student has subsequently upgraded to Premium for this course
+            $hasPaidPremium = Students::where('student_email', $student->student_email)
+                ->where('course_id', $student->course_id)
+                ->where('plan_type', 'premium')
+                ->where(function ($query) {
+                    $query->where('is_paid', true)->orWhere('status', 'paid');
+                })
+                ->exists();
+
+            if ($hasPaidPremium || $student->status === 'upgraded') {
+                $student->update(['status' => 'upgraded']);
+                $this->info("Skipping unenrollment for upgraded student: {$student->student_email}");
+                continue;
+            }
+
             $this->info("Revoking access for: {$student->student_email} (Expired: {$student->trial_expires_at})");
             
             try {

@@ -5,6 +5,7 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AnalyticsController;
 use GuzzleHttp\Middleware;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\ReviewerController;
@@ -62,6 +63,7 @@ Route::post('/login/authenticate',[LoginController::class, 'authenticate'])->nam
 Route::middleware([Authenticate::class, IsAdmin::class])->group(function () {
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
     // Reviewer Routes
     Route::get('/reviewers', [ReviewerController::class, 'index'])->name('reviewers');

@@ -140,6 +140,14 @@ class XenditPaymentService
             ]);
 
             app(GoogleClassroomService::class)->enrollStudent($student);
+
+            // Option A: Automatically upgrade any active free trial for this student
+            Students::where('student_email', $student->student_email)
+                ->where('course_id', $student->course_id)
+                ->where('plan_type', 'free_trial')
+                ->where('status', 'active')
+                ->update(['status' => 'upgraded']);
+
             Log::info("Verified and auto-enrolled mock Xendit invoice for reference: {$student->reference_id}");
             return true;
         }
@@ -190,6 +198,13 @@ class XenditPaymentService
 
                     // Trigger Google Classroom invitation
                     app(GoogleClassroomService::class)->enrollStudent($student);
+
+                    // Option A: Automatically upgrade any active free trial for this student
+                    Students::where('student_email', $student->student_email)
+                        ->where('course_id', $student->course_id)
+                        ->where('plan_type', 'free_trial')
+                        ->where('status', 'active')
+                        ->update(['status' => 'upgraded']);
 
                     Log::info("Successfully verified via Xendit API and triggered Classroom enrollment for student: {$student->student_email}");
                     return true;
