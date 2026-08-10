@@ -21,3 +21,4 @@ todo.md
 skills/
 instruction.md
 db/password.txt
+docker-compose.override.yml

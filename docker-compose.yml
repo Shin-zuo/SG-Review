@@ -4,11 +4,6 @@ services:
       context: .
     ports:
       - 8090:80
-    volumes:
-      - .:/var/www/html
-      # Stop syncing the heavy dependency folders to your host!
-      - /var/www/html/vendor
-      - /var/www/html/node_modules
     env_file:
       - .env
     environment:
@@ -18,19 +13,6 @@ services:
       db:
         condition: service_healthy
 
-  # Node service for Vite
-  node:
-    image: node:20-alpine
-    working_dir: /var/www/html
-    volumes:
-      - .:/var/www/html
-      # Isolate node_modules here as well
-      - /var/www/html/node_modules
-    ports:
-      - "5173:5173"
-    # Added --host so Vite is accessible outside the container
-    command: sh -c "npm install && npm run dev -- --host"
-        
   db:
     image: postgres:17
     restart: always
@@ -42,6 +24,7 @@ services:
       - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=sg_review
+      # Make sure DB_PASSWORD is in your .env or Hostinger Dashboard!
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     expose:
       - 5432
@@ -51,7 +34,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # New Web UI for PostgreSQL
+  # Web UI for PostgreSQL
   pgadmin:
     image: dpage/pgadmin4
     restart: always
