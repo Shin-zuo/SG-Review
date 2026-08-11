@@ -3,9 +3,10 @@ services:
     build:
       context: .
     ports:
-      - 8090:80
+      - 80:80
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -17,7 +18,8 @@ services:
     image: postgres:17
     restart: always
     env_file:
-      - .env
+      - path: .env
+        required: false
     ports:
       - "7808:5432"
     volumes:
