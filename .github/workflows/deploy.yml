@@ -6,10 +6,50 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy and Rebuild Docker
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+          coverage: none
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install NPM Dependencies & Build Assets
+        run: |
+          npm install
+          npm run build
+
+      - name: Prepare Environment for Testing
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run Tests
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: :memory:
+        run: php artisan test
+
+  deploy:
+    name: Deploy to VPS
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -17,7 +57,13 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
+            # Navigate to the permanent project directory
             cd /var/www/SG-Review
-            git pull origin main
+            
+            # Pull the latest code that was just tested
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Restart the Docker containers with the new code
             docker compose down
             docker compose up -d --build

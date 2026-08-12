@@ -320,7 +320,7 @@
                         "Earn While Helping Future Topnotchers Succeed."
                     </h2>
                     <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
-                        Join the nationwide <span class="font-bold text-slate-900">SG-Review Ambassador Network</span>. Share our industry-leading REBLEX, CELE, and other PRC board exam reviewers with your classmates, peers, and network to earn a guaranteed <span class="text-blue-600 font-extrabold underline underline-offset-4">up to 20% direct commission</span> on every single sale!
+                        Join the nationwide <span class="font-bold text-slate-900">SG-Review Ambassador Network</span>. Share our industry-leading REBLEX, CELERy, and other PRC board exam reviewers with your classmates, peers, and network to earn a guaranteed <span class="text-blue-600 font-extrabold underline underline-offset-4">up to 20% direct commission</span> on every single sale!
                     </p>
                 </div>
 
