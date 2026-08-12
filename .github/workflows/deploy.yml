@@ -16,7 +16,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
           coverage: none
 
@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install NPM Dependencies & Build Assets
         run: |
@@ -41,7 +41,7 @@ jobs:
       - name: Run Tests
         env:
           DB_CONNECTION: sqlite
-          DB_DATABASE: :memory:
+          DB_DATABASE: ":memory:"
         run: php artisan test
 
   deploy:
@@ -59,11 +59,11 @@ jobs:
           script: |
             # Navigate to the permanent project directory
             cd /var/www/SG-Review
-            
+
             # Pull the latest code that was just tested
             git fetch origin main
             git reset --hard origin/main
-            
+
             # Restart the Docker containers with the new code
             docker compose down
             docker compose up -d --build
